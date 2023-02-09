@@ -1,18 +1,18 @@
 "use strict";
 
-// KONSTANTER
+// GLOBALE VARIABLER
 // sætter iterator til -1, så den starter på 0
 
 let iterator = -1;
 const arr = [];
 
 // Kalder functionen
-counting();
+window.addEventListener("DOMContentLoaded", counting);
 
 function counting() {
   //   console.log("counting");
   iterator++;
-  // unshift tilføjer et element til vores array/iterator
+  // unshift tilføjer et element til vores array fra starten
   arr.unshift(iterator);
   //   hvis arrayets længde er over 9, skal den med .pop fjerne det sidste element
   if (arr.length > 9) {
