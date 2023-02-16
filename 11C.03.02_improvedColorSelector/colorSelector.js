@@ -12,18 +12,39 @@ function addEventListeners() {
   return inputColor.addEventListener("input", showColor);
 }
 
-// function showColor() {
-//   const hex = inputColor.value;
-//   const rgb = HEXtoRGB(hex);
-//   const toHex = RGBtoHEX(rgb);
-//   const toCSS = RGBtoCSS(rgb);
-//   const toHSL = RGBtoHSL(rgb);
-//   console.log(rgb);
-//   console.log(toHex);
-//   console.log(toCSS);
-//   console.log(toHSL);
-//   displayColors(rgb, toHex, toCSS, toHSL);
-// }
+function showColor() {
+  const hex = inputColor.value;
+  const rgb = HEXtoRGB(hex);
+  const toHex = RGBtoHEX(rgb);
+  const toCSS = RGBtoCSS(rgb);
+  const toHSL = RGBtoHSL(rgb);
+  console.log(rgb);
+  console.log(toHex);
+  console.log(toCSS);
+  console.log(toHSL);
+  displayColors(rgb, toHex, toCSS, toHSL);
+}
+function displayColors(rgb, toHex, css, hsl) {
+  boxColorChange(css);
+  HEXvalChange(toHex);
+  RGBvalChange(rgb);
+  HSLvalChange(hsl);
+}
+
+function boxColorChange(css) {
+  document.querySelector("#colorDisplay").style.backgroundColor = css;
+}
+
+function HEXvalChange(toHex) {
+  document.querySelector("#hex").textContent = `${toHex}`;
+}
+function RGBvalChange(rgb) {
+  document.querySelector("#rgb").textContent = `(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+}
+
+function HSLvalChange(hsl) {
+  document.querySelector("#hsl").textContent = `(${hsl.h.toFixed(0)}, ${hsl.s.toFixed(0)}%, ${hsl.l.toFixed(0)}%)`;
+}
 
 // Service functions for color calculations and conversions
 
