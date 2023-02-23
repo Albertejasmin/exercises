@@ -1,23 +1,23 @@
-article {
+section {
   background: rgb(226, 223, 223);
   border-radius: 5px;
   width: 30%;
   padding: 1%;
 }
 
-article div {
+section div {
   display: flex;
   justify-content: start;
   width: 100%;
   text-align: start;
 }
 
-#palette {
+#top_container {
   align-items: center;
   column-gap: 10px;
 }
 
-#colorDisplay {
+#color_on_display {
   height: 200px;
   width: 200px;
   border-radius: 5px;

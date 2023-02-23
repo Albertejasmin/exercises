@@ -3,56 +3,57 @@
 window.addEventListener("DOMContentLoaded", start);
 const inputColor = document.querySelector("input");
 
-function start() {
-  console.log("START");
+function start(evt) {
+  console.log(evt);
   addEventListeners();
 }
 
 function addEventListeners() {
-  return inputColor.addEventListener("input", showColor);
+  document.querySelector("#my_color_picker").addEventListener("input", showColor);
+  // return inputColor.addEventListener("input", showColor);
 }
 
-function showColor() {
-  const hex = inputColor.value;
-  const rgb = HEXtoRGB(hex);
-  const toHex = RGBtoHEX(rgb);
-  const toCSS = RGBtoCSS(rgb);
-  const toHSL = RGBtoHSL(rgb);
-  console.log(rgb);
-  console.log(toHex);
-  console.log(toCSS);
-  console.log(toHSL);
-  displayColors(rgb, toHex, toCSS, toHSL);
-}
-function displayColors(rgb, toHex, css, hsl) {
-  boxColorChange(css);
-  HEXvalChange(toHex);
-  RGBvalChange(rgb);
-  HSLvalChange(hsl);
+function showColor(evt) {
+  showSelectedColor(evt.target.value);
 }
 
-function boxColorChange(css) {
-  document.querySelector("#colorDisplay").style.backgroundColor = css;
+function showSelectedColor(hexValue) {
+  // console.log(hexColor);
+  document.querySelector("#color_on_display").style.backgroundColor = hexValue;
+  // console.log(hexToRGB(hexColor));
+
+  const HEXColor = hexValue;
+  const RGBColor = hexToRGB(HEXColor);
+  const HSLColor = RGBtoHSL(RGBColor.r, RGBColor.g, RGBColor.b);
+  // console.log("RGBColor", RGBColor);
+
+  // kalder vis/show functionerne
+  showHEX(HEXColor);
+  showRGB(RGBColor);
+  showHSL(HSLColor);
+  // console.log("HSL", RGBtoHSL(RGBColor.r, RGBColor.g, RGBColor.b));
 }
 
-function HEXvalChange(toHex) {
-  document.querySelector("#hex").textContent = `${toHex}`;
+// VIEW
+
+function showHEX(color) {
+  document.querySelector("#hex").textContent = `HEX: ${color}`;
 }
-function RGBvalChange(rgb) {
-  document.querySelector("#rgb").textContent = `(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+function showRGB(color) {
+  document.querySelector("#rgb").textContent = `RBG: ${color.r} ${color.g} ${color.b}`;
+}
+function showHSL(color) {
+  document.querySelector("#hsl").textContent = `HSL: h:${Math.round(color.h)}° s:${Math.round(color.s)}% l:${Math.round(color.l)}%`;
 }
 
-function HSLvalChange(hsl) {
-  document.querySelector("#hsl").textContent = `(${hsl.h.toFixed(0)}, ${hsl.s.toFixed(0)}%, ${hsl.l.toFixed(0)}%)`;
-}
-
-// Service functions for color calculations and conversions
+// CONVERTER FUNTIONS --> CONTROLLER (MVC model)
 
 // HEX TIL RGB
-function hexToRGB(hex) {
-  const r = parseInt(hex.substring(1, 3), 16);
-  const g = parseInt(hex.substring(3, 5), 16);
-  const b = parseInt(hex.substring(5, 7), 16);
+function hexToRGB(hexColor) {
+  const r = parseInt(hexColor.substring(1, 3), 16);
+  const g = parseInt(hexColor.substring(3, 5), 16);
+  const b = parseInt(hexColor.substring(5, 7), 16);
+
   const result = {
     r: r,
     g: g,
@@ -61,36 +62,25 @@ function hexToRGB(hex) {
   return result;
 }
 
-// RGB TO HEX
-function rgbTOhex(rgb) {
-  console.log(rgb);
-  return `#${rgb.r.toString(16)}${rgb.g.toString(16)}${rgb.b.toString(16)}`;
-}
-
-// RGB TO CSS - converts a rgb color object into a CSS color string
-function rgbToCSS(rgb) {
-  const { r, g, b } = rgb;
-  return `rgb(${r}, ${g}, ${b})`;
-}
-
+// MODEL
 // RGB TO HSL
-function RGBtoHSL(rgb) {
-  rgb.r /= 255;
-  rgb.g /= 255;
-  rgb.b /= 255;
+function RGBtoHSL(r, g, b) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
 
-  const min = Math.min(rgb.r, rgb.g, rgb.b);
-  const max = Math.max(rgb.r, rgb.g, rgb.b);
+  const min = Math.min(r, g, b);
+  const max = Math.max(r, g, b);
   let h, s, l;
 
   if (max === min) {
     h = 0;
-  } else if (max === rgb.r) {
-    h = 60 * (0 + (rgb.g - rgb.b) / (max - min));
-  } else if (max === rgb.g) {
-    h = 60 * (2 + (rgb.b - rgb.r) / (max - min));
-  } else if (max === rgb.b) {
-    h = 60 * (4 + (rgb.r - rgb.g) / (max - min));
+  } else if (max === r) {
+    h = 60 * (0 + (g - b) / (max - min));
+  } else if (max === g) {
+    h = 60 * (2 + (b - r) / (max - min));
+  } else if (max === b) {
+    h = 60 * (4 + (r - g) / (max - min));
   }
 
   if (h < 0) {
@@ -108,9 +98,9 @@ function RGBtoHSL(rgb) {
   s *= 100;
   l *= 100;
 
-  rgb.r *= 255;
-  rgb.g *= 255;
-  rgb.b *= 255;
+  r *= 255;
+  g *= 255;
+  b *= 255;
 
   return { h, s, l };
 }

@@ -10,7 +10,17 @@ const Animal = {
   desc: "-unknown animal-",
   type: "",
   age: 0,
+  star: false,
+  winner: false,
 };
+
+const settings = {
+  filter: "all",
+  sortBy: "name",
+  sortDir: "asc",
+};
+
+let filterBy = "all";
 
 function start() {
   console.log("ready");
@@ -36,10 +46,12 @@ async function loadJSON() {
 }
 
 function prepareObjects(jsonData) {
+  // The .Map object holds key-value pairs and remembers the original insertion order of the keys
+  // map lavet et nyt array
   allAnimals = jsonData.map(preapareObject);
 
-  // TODO: This might not be the function we want to call first
-  displayList(allAnimals);
+  // buildList sorts and filters, here it does it on the first load
+  buildList();
 }
 
 function preapareObject(jsonObject) {
@@ -57,21 +69,27 @@ function preapareObject(jsonObject) {
 function selectFilter(event) {
   const filter = event.target.dataset.filter;
   console.log(`User selected ${filter}`);
-  //   Kalder filterList(med det selectede filter)
-  filterList(filter);
+  //   Kalder setFilter(med det selectede filter)
+  // filterList(filter);
+  setFilter(filter);
 }
 
-function filterList(animalType) {
-  let filteredList = allAnimals;
-  if (animalType === "cat") {
+function setFilter(filter) {
+  // sets the global variable
+  settings.filterBy = filter;
+  buildList();
+}
+
+function filterList(filteredList) {
+  if (settings.filterBy === "cat") {
     // Create a filtered list of only cats
     filteredList = allAnimals.filter(isCat);
-  } else if (animalType === "dog") {
+  } else if (settings.filterBy === "dog") {
     // Create a filtered list of only dogs
     filteredList = allAnimals.filter(isDog);
   }
 
-  displayList(filteredList);
+  return filteredList;
 }
 
 function isCat(animal) {
@@ -86,65 +104,65 @@ function isDog(animal) {
 
 function selectSort(event) {
   const sortBy = event.target.dataset.sort;
-  console.log(`User selected ${sortBy}`);
+  const sortDir = event.target.dataset.sortDirection;
+
+  // find "old" sortBy element and remove .sortBy
+  const oldElement = document.querySelector(`[data-sort=${settings.sortBy}]`);
+  oldElement.classList.remove("sortby");
+  // indicate active sort
+  event.target.classList.add("sortby");
+
+  // Toggle the direction !
+  console.log("SORT DIR", sortDir);
+  if (sortDir === "asc") {
+    event.target.dataset.sortDirection = "desc";
+  } else {
+    event.target.dataset.sortDirection = "asc";
+  }
+
+  console.log(`User selected ${sortBy} - ${sortDir}`);
   //   Kalder sortList(med det valgte sorting
-  sortList(sortBy);
+  setSort(sortBy, sortDir);
 }
 
-function sortList(sortBy) {
-  let sortedList = allAnimals;
+function setSort(sortBy, sortDir) {
+  settings.sortBy = sortBy;
+  settings.sortDir = sortDir;
+  buildList();
+}
 
-  if (sortBy === "name") {
-    // Hvis sortedList = er "sorted" by name / .sort (en array methods)
-    sortedList = sortedList.sort(sortByName);
-  } else if (sortBy === "type") {
-    sortedList = sortedList.sort(sortByType);
-  } else if (sortBy === "desc") {
-    sortedList = sortedList.sort(sortByDesc);
-  } else if (sortBy === "age") {
-    sortedList = sortedList.sort(sortByAge);
+function sortList(sortedList) {
+  // let sortedList = allAnimals;
+  let direction = 1;
+  if (settings.sortDir === "desc") {
+    direction = -1;
+  } else {
+    settings.direction = 1;
   }
-  // husk at display listen
+  // Hvis sortedList = er "sorted" by name / .sort (en array methods)
+  sortedList = sortedList.sort(sortByProperty);
+
+  // SORTING BY  NAME med CLOSURE !! nødvendigt for at vi kan bruge sortBy parametret
+  function sortByProperty(animalA, animalB) {
+    // console.log(`SortBy is ${sortBy}`);
+    // siger hvis animalA kommer før < animalB
+    if (animalA[settings.sortBy] < animalB[settings.sortBy]) {
+      return -1 * direction;
+    } else {
+      return 1 * direction;
+    }
+  }
+
+  // husk at return listen
+  return sortedList;
+}
+
+function buildList() {
+  // først filterer vi
+  const currentList = filterList(allAnimals);
+  const sortedList = sortList(currentList);
+  // kalder displayList med vores sortedList
   displayList(sortedList);
-}
-
-// SORTING BY  NAME
-function sortByName(animalA, animalB) {
-  // siger hvis animalA kommer før < animalB
-  if (animalA.name < animalB.name) {
-    return -1;
-  } else {
-    return 1;
-  }
-}
-
-// SORTING BY  TYPE
-function sortByType(animalA, animalB) {
-  // siger hvis animalA kommer før < animalB
-  if (animalA.type < animalB.type) {
-    return -1;
-  } else {
-    return 1;
-  }
-}
-
-// SORTING BY  DESC
-function sortByDesc(animalA, animalB) {
-  // siger hvis animalA kommer før < animalB
-  if (animalA.desc < animalB.desc) {
-    return -1;
-  } else {
-    return 1;
-  }
-}
-// SORTING BY AGE
-function sortByAge(animalA, animalB) {
-  // siger hvis animalA kommer før < animalB
-  if (animalA.age < animalB.age) {
-    return -1;
-  } else {
-    return 1;
-  }
 }
 
 function displayList(animals) {
@@ -165,6 +183,76 @@ function displayAnimal(animal) {
   clone.querySelector("[data-field=type]").textContent = animal.type;
   clone.querySelector("[data-field=age]").textContent = animal.age;
 
+  if (animal.star === true) {
+    clone.querySelector("[data-field=star]").textContent = "⭐";
+  } else {
+    clone.querySelector("[data-field=star]").textContent = "☆";
+  }
+  clone.querySelector("[data-field=star]").addEventListener("click", clickStar);
+
+  // CLOSURE function, bruger animal parametret
+  function clickStar() {
+    // animal.star = !animal.star
+    // er det samme som nedenstående. ! = det modsatte af
+    if (animal.star === true) {
+      animal.star = false;
+    } else {
+      animal.star = true;
+    }
+    // kalder/viser buildList to update the VIEW
+    buildList();
+  }
+
+  // WINNER
+
+  clone.querySelector("[data-field=winner]").dataset.winner = animal.winner;
+  clone.querySelector("[data-field=winner]").addEventListener("click", clickWinner);
+
+  function clickWinner() {
+    if (animal.winner === true) {
+      animal.winner = false;
+    } else {
+      tryToMakeAWinner(animal);
+    }
+    buildList();
+  }
+
   // append clone to list
   document.querySelector("#list tbody").appendChild(clone);
+}
+
+function tryToMakeAWinner(selectedAnimal) {
+  const winners = allAnimals.filter((animal) => animal.winner);
+
+  const numbersOfWinners = winners.length;
+
+  const other = winners.filter((animal) => animal.type === selectedAnimal.type).shift();
+
+  // If there is another of the same type
+  if (other !== undefined) {
+    console.log("There can be only one winner of each type!");
+    removeOther(other);
+  } else if (numbersOfWinners >= 2) {
+    console.log("There can only be 2 winners");
+    removeAorB(winners[0], winners[1]);
+  }
+
+  console.log(`There are ${numbersOfWinners} winners`);
+  // console.log(`The other winner of this type is ${other.name}`);
+  console.log(other);
+
+  // just for testing !
+  makeWinner(selectedAnimal);
+
+  function removeOther(other) {}
+
+  function removeAorB(winnerA, winnerB) {}
+
+  function removeWinner(winnerAnimal) {
+    winnerAnimal.winner = false;
+  }
+
+  function makeWinner(animal) {
+    animal.winner = true;
+  }
 }

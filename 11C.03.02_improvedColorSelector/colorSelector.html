@@ -8,18 +8,18 @@
     <title>Improved Color Selector</title>
   </head>
   <body>
-    <article>
-      <div id="palette">
-        <span>Select Color: </span>
-        <input type="color" name="" id="" />
+    <section id="color_selector">
+      <div id="top_container">
+        <h1>Select Color:</h1>
+        <input type="color" value="#ffffff" name="my_color_picker" id="my_color_picker" />
       </div>
-      <div id="colorDisplay"></div>
+      <div id="color_on_display"></div>
       <div id="colorCodes">
-        <p>HEX: <span id="hex"></span></p>
-        <p>RGB: <span id="rgb"></span></p>
-        <p>HSL: <span id="hsl"></span></p>
+        <p id="hex">HEX:</p>
+        <p id="rgb">RGB:</p>
+        <p id="hsl">HSL:</p>
       </div>
-    </article>
+    </section>
     <script src="colorSelector.js"></script>
   </body>
 </html>
